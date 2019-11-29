@@ -26,22 +26,57 @@ epochs = parameters.epochs
 # load the image
 
 #image = cv2.imread("./OpenCamera/IMG_20190124_064521.jpg")
-image = cv2.imread("./OpenCamera/IMG_20190124_090550.jpg")
+#image = cv2.imread("./OpenCamera/IMG_20190124_090550.jpg")
 
-#image = cv2.imread("./OpenCamera/IMG_20190120_195711.jpg")
+image = cv2.imread("./OpenCamera/IMG_20190120_195711.jpg")
 
 #show image on screen
 screen_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-#plt.imshow(screen_image)
+#plt.imshow(image)
 #plt.show()
 
 img_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-mask1 = cv2.inRange(img_hsv, (0,130,20), (10,255,255))
-mask2 = cv2.inRange(img_hsv, (175,130,20), (180,255,255))
-mask = cv2.bitwise_or(mask1, mask2 )
+# HSV color values
+light_red= (1, 190, 200)
+dark_red = (18, 255, 255)
+dark_grey = (0, 0, 200)
+black = (145, 60, 255)
+
+# lower red mask (0-10)
+lower_red = np.array([0,50,50])
+upper_red = np.array([10,255,255])
+mask0 = cv2.inRange(img_hsv, lower_red, upper_red)
+
+# upper red mask (170-180)
+lower_red = np.array([170,50,50])
+upper_red = np.array([180,255,255])
+mask1 = cv2.inRange(img_hsv, lower_red, upper_red)
+mask = mask0+mask1
+
+# lower black mask ( )
+lower_black = np.array([0, 0, 15])
+upper_black = np.array([180, 255, 50])
+mask2 = cv2.inRange(img_hsv, lower_black, upper_black)
+
+# upper black mask ( )
+lower_black = np.array([350, 0, 100])
+upper_black = np.array([360, 30, 110])
+mask3 = cv2.inRange(img_hsv, lower_black, upper_black)
+mask = mask0+mask1#+mask2
+#print (mask0.dtype)
+
+#mask1 = cv2.inRange(img_hsv, (0,130,20), (10,255,255))
+#mask2 = cv2.inRange(img_hsv, (175,130,20), (180,255,255))
+#mask1 = cv2.inRange(img_hsv, (0,60,20), (10,100,100))
+#mask2 = cv2.inRange(img_hsv, (175,60,20), (185,100,100))
+#mask3 = cv2.inRange(img_hsv, (0,0,0), (360,80,70))
+#mask_between = cv2.bitwise_or(mask1, mask2 )
+#mask = cv2.bitwise_or(mask_between, mask3 )
 
 output = cv2.bitwise_and(image, image, mask = mask)
-
+image_mask = image*0+mask[:,:,np.newaxis]
+#output = cv2.bitwise_and(image, image, mask = mask)
+#screen_output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
 screen_output = cv2.cvtColor(output, cv2.COLOR_RGB2BGR)
 plt.imshow(screen_output)
 plt.show()
@@ -49,8 +84,9 @@ plt.show()
 # convert the image to grayscale, blur it, and find edges
 # in the image
 gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
-gray = cv2.bilateralFilter(gray, 11, 17, 17)
-edged = cv2.Canny(gray, 30, 200)
+#gray = cv2.bilateralFilter(gray, 11, 17, 17)
+gray = cv2.bilateralFilter(gray, 7, 50, 50)
+edged = cv2.Canny(gray, 60, 120)
 
 screen_output = cv2.cvtColor(edged, cv2.COLOR_GRAY2BGR)
 plt.imshow(screen_output)
@@ -91,7 +127,8 @@ plt.show()
 for c in cnts:
     # approximate the contour
     peri = cv2.arcLength(c, True)
-    approx = cv2.approxPolyDP(c, 0.025 * peri, True)
+    print(c)
+    approx = cv2.approxPolyDP(c, 0.01 * peri, True)
     print(approx)
     # if our approximated contour has four points, then
     # we can assume that we have found our screen
@@ -114,7 +151,7 @@ def get_shortest(polygon):
         new_distance = distance.euclidean(polygon[counter], polygon[counter+1])
         if new_distance < shortest:
             shortest = new_distance
-            index_shortest = counter
+            index_shortest = counter+1
 
     
     return index_shortest
@@ -131,6 +168,7 @@ def get_intersect(a1, a2, b1, b2):
     b2: [x, y] another point on the second line
     """
     s = np.vstack([a1,a2,b1,b2])        # s for stacked
+    print(s)
     h = np.hstack((s, np.ones((4, 1)))) # h for homogeneous
     l1 = np.cross(h[0], h[1])           # get first line
     l2 = np.cross(h[2], h[3])           # get second line
@@ -140,7 +178,7 @@ def get_intersect(a1, a2, b1, b2):
     return (int(x/z), int(y/z))
 
 def remove_corner(polygon, index_shortest):
-    intersect_x,intersext_y= get_intersect(polygon[index_shortest-1],polygon[index_shortest],polygon[index_shortest+1],polygon[index_shortest-2])
+    intersect_x,intersext_y= get_intersect(polygon[index_shortest ],polygon[(index_shortest+1)%len(polygon)],polygon[index_shortest-1],polygon[index_shortest-2])
     print(index_shortest)
     print(intersect_x," ", intersext_y)
     polygon[index_shortest]=[intersect_x,intersext_y]
