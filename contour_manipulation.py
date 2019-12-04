@@ -25,7 +25,7 @@ def get_intersect(a1, a2, b1, b2):
     b2: [x, y] another point on the second line
     """
     s = np.vstack([a1,a2,b1,b2])        # s for stacked
-    print(s)
+    #print(s)
     h = np.hstack((s, np.ones((4, 1)))) # h for homogeneous
     l1 = np.cross(h[0], h[1])           # get first line
     l2 = np.cross(h[2], h[3])           # get second line
@@ -37,8 +37,8 @@ def get_intersect(a1, a2, b1, b2):
 # remove original line end points after creating intersection of lines
 def remove_corner(polygon, index_shortest):
     intersect_x,intersext_y= get_intersect(polygon[index_shortest ],polygon[(index_shortest+1)%len(polygon)],polygon[index_shortest-1],polygon[index_shortest-2])
-    print(index_shortest)
-    print(intersect_x," ", intersext_y)
+    #print(index_shortest)
+    #print(intersect_x," ", intersext_y)
     polygon[index_shortest]=[intersect_x,intersext_y]
     polygon_short=np.delete(polygon,index_shortest-1,axis=0)
     return(polygon_short)
@@ -53,8 +53,6 @@ def order_points(pts):
 	leftMost = xSorted[:2, :]
 	rightMost = xSorted[2:, :]
 
-   
- 
 	# now, sort the left-most coordinates according to their
 	# y-coordinates so we can grab the top-left and bottom-left
 	# points, respectively
