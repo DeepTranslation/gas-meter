@@ -25,8 +25,9 @@ batch_size = parameters.batch_size
 num_classes = parameters.num_classes
 epochs = parameters.epochs
 
+
 # load the image
-image_names = ("IMG_20190124_090550.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg')
+image_names = ("IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg')[:1]
 images =[]
 for image_name in range(len(image_names)):
     image = cv2.imread("./OpenCamera/"+image_names[image_name])
@@ -34,20 +35,17 @@ for image_name in range(len(image_names)):
 image_array = np.asarray(images)
 print('array shape: ', image_array.shape)
 
-#image = cv2.imread("./OpenCamera/IMG_20190124_064521.jpg")  # br,tr
-#image = cv2.imread("./OpenCamera/IMG_20190124_090550.jpg") # tr, br
-
-#image = cv2.imread("./OpenCamera/IMG_20190120_195711.jpg") # br,tr
-#image = cv2.imread("./OpenCamera/IMG_20190123_035927.jpg") # br,tr
-#image = cv2.imread("./OpenCamera/IMG_20190129_015030.jpg") # tr,br
-#image = cv2.imread("./OpenCamera/IMG_20190201_020630.jpg") # tr,br
-
 numbers_list=[]
 for image in image_array:
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+
     original_image= image
 
     screen_image, image_mask,edged, screen_output = image_preparation.img_prep(image)
-
+    original_image[image_mask[:,:,0].astype(bool)]=0
+    print(original_image.shape)
+    print(image_mask.shape)
     #find contours
     #imgray = cv2.cvtColor(edged, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(edged, 127, 255, 0)
@@ -55,8 +53,8 @@ for image in image_array:
     cnts = imutils.grab_contours(contours)
     cnts = sorted(cnts, key = cv2.contourArea, reverse = True)
     cnts=[cv2.convexHull(np.concatenate(cnts,0),False)]
-
-    img = cv2.drawContours(screen_image, cnts, -1, (0,255,0), 3)
+    
+    img = cv2.drawContours(screen_image, cnts, -1, (0,255,0), 1)
     #plt.imshow(img)
     #plt.show()
 
@@ -64,25 +62,33 @@ for image in image_array:
     for c in cnts:
         # approximate the contour
         peri = cv2.arcLength(c, True)
+        accuracy_value = 0.001*peri
         #print(c)
-        approx = cv2.approxPolyDP(c, 0.01 * peri, True)
+        approx=c
+        while len(approx)>8:
+            approx = cv2.approxPolyDP(c,accuracy_value, True)
+            accuracy_value *= 1.05
         #print(approx)
         # if our approximated contour has four points, then
         # we can assume that we have found our screen
-        if len(approx) in [4, 5,6]:
-            screenCnt = approx
-            break
+        #if len(approx) in [4, 5,6,7,8]:
+        screenCnt = approx
+        #    break
 
     screenCnt= screenCnt[:,0,:]
     #print(screenCnt)
-    img = cv2.drawContours(screen_image, [approx], -1, (0,255,255), 3)
+    img = cv2.drawContours(screen_image, [approx], -1, (0,255,255), 1)
     #plt.imshow(img)
     #plt.show()
 
     ### START CONTOUR MANIPULATION
-    index_shortest= contour_manipulation.get_shortest(screenCnt)
+    bounding_box= screenCnt.copy()
+    while len(bounding_box)>4:
+        index_shortest= contour_manipulation.get_shortest(bounding_box)
+       # print(bounding_box.T,index_shortest)
+        bounding_box = contour_manipulation.remove_corner(bounding_box,index_shortest)
     #print(index_shortest)
-
+    '''
     if len(screenCnt)==6:
         bounding_box = contour_manipulation.remove_corner(screenCnt,index_shortest)
         index_shortest= contour_manipulation.get_shortest(bounding_box)
@@ -91,9 +97,10 @@ for image in image_array:
         bounding_box = contour_manipulation.remove_corner(screenCnt,index_shortest)
     else:
         bounding_box=screenCnt
+    '''
     #print('haha')
     #print(bounding_box)
-    img = cv2.drawContours(screen_image, [bounding_box], -1, (0,255,255), 3)
+    img = cv2.drawContours(screen_image.copy(), [bounding_box], -1, (255,0,255), 1)
     #plt.imshow(img)
     #plt.show()
 
@@ -106,37 +113,42 @@ for image in image_array:
     # 3 = lebt bottom
 
     # warp bounding box
-
-    src_pnts = np.array([[bounding_box[3][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[1][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
-    dst_pnts = np.array([[bounding_box[0][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[0][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
-
-    tfm = cv2.getAffineTransform(src_pnts,dst_pnts)
-    warped_image = cv2.warpAffine(screen_image,tfm,(np.size(screen_image, 1), np.size(screen_image, 0)))
-    original_warped_image= cv2.warpAffine(original_image,tfm,(np.size(original_image, 1), np.size(original_image, 0)))
-    warped_box = bounding_box
+    warped_box = bounding_box.copy()
     warped_box[3][0] = warped_box[0][0]
     warped_box[1][1] = warped_box[0][1]
+    warped_box[2][0] = warped_box[1][0]
+    warped_box[2][1] = warped_box[3][1]
+    #src_pnts = np.array([[bounding_box[3][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[1][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
+    #dst_pnts = np.array([[bounding_box[0][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[0][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
+
+
+    tfm = cv2.getPerspectiveTransform(bounding_box,warped_box)
+    warped_image = cv2.warpPerspective(screen_image,tfm,(np.size(screen_image, 1), np.size(screen_image, 0)))
+    original_warped_image= cv2.warpPerspective(original_image,tfm,(np.size(original_image, 1), np.size(original_image, 0)))
+
 
     # extend polygon to include black numbers
     extended_polygon = contour_manipulation.extend_box(warped_box)
     #print('huhu')
     #print(extended_polygon)
-
-    img = cv2.drawContours(warped_image, [extended_polygon.astype(int)], -1, (0,255,255), 3)
+    #print(warped_box)
+    #print(bounding_box)
+    img = cv2.drawContours(warped_image.copy(), [extended_polygon.astype(int)], -1, (200,255,255), 1)
+    #img = cv2.drawContours(warped_image.copy(), [warped_box.astype(int)], -1, (200,255,255), 1)
     #plt.imshow(img)
     #plt.show()
 
     def get_roi(polygon):
-        upper_left=polygon[0]+0.09*(polygon[3]-polygon[0])
-        lower_left=polygon[1]+0.09*(polygon[2]-polygon[1])
-        lower_right=polygon[1]+0.66*(polygon[2]-polygon[1])
-        upper_right=polygon[0]+0.66*(polygon[3]-polygon[0])
+        upper_left=polygon[0]+0.08*(polygon[3]-polygon[0])
+        lower_left=polygon[1]+0.08*(polygon[2]-polygon[1])
+        lower_right=polygon[1]+0.68*(polygon[2]-polygon[1])
+        upper_right=polygon[0]+0.68*(polygon[3]-polygon[0])
         roi=np.array([upper_left,lower_left,lower_right,upper_right],np.int)
         return roi
 
     roi= get_roi(extended_polygon)
     #print(roi)
-    img = cv2.drawContours(warped_image, [roi], -1, (0,255,255), 3)
+    img = cv2.drawContours(warped_image.copy(), [roi], -1, (0,150,125), 1)
     #plt.imshow(img)
     #plt.show()
 
@@ -147,23 +159,27 @@ for image in image_array:
     anfang = roi[0][0]
     ende = roi[3][0]
 
-    siebentel_breite = int(abs(roi[0][0]-roi[3][0])/7.0)
+    siebentel_breite = int((ende-anfang)/7.0)
     #print (siebentel_breite)
     #print(roi.shape)
     #print(roi)
 
-    numbers_array=x_images[:,roi[0][1]+1:roi[1][1]-2,anfang+9:anfang+9+siebentel_breite*7,:]
+    numbers_array=x_images[:,roi[0][1]+1:roi[1][1],anfang:anfang+siebentel_breite*7,:]
     #print (numbers_array.shape)
     numbers_array=numbers_array.reshape(numbers_array.shape[1],7,siebentel_breite,numbers_array.shape[3])
-    numbers_array=numbers_array[:,:,:22,:]
-    numbers_array=numbers_array.transpose(1,0,2,3)
+    numbers_array=numbers_array[:,:,:int(siebentel_breite*0.9),:]
+    numbers_array_new=numbers_array.copy().transpose(1,0,2,3)
+    numbers_array += 100
+    #img = cv2.drawContours(original_warped_image, [roi], -1, (0,150,125), 1)
+    plt.imshow(x_images[0])
+    plt.show()
     #print (numbers_array.shape)
 
     #for ind in range(7):
     #    plt.imshow(numbers_array[ind])
     #    plt.show()
 
-    test_data = numbers_array.astype('float32') / 256
+    test_data = numbers_array_new.astype('float32') / 256
 
     numb_test=7
     reshaped_test_data=[]

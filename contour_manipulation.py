@@ -43,35 +43,37 @@ def remove_corner(polygon, index_shortest):
     polygon_short=np.delete(polygon,index_shortest-1,axis=0)
     return(polygon_short)
 
-# sort bounding boy points in predefined (HAHAHA!) order
+# sort bounding box points in predefined (HAHAHA!) order
 def order_points(pts):
-	# sort the points based on their x-coordinates
-	xSorted = pts[np.argsort(pts[:, 0]), :]
- 
-	# grab the left-most and right-most points from the sorted
-	# x-roodinate points
-	leftMost = xSorted[:2, :]
-	rightMost = xSorted[2:, :]
+    # sort the points based on their x-coordinates
+    xSorted = pts[np.argsort(pts[:, 0]), :]
 
-	# now, sort the left-most coordinates according to their
-	# y-coordinates so we can grab the top-left and bottom-left
-	# points, respectively
-	leftMost = leftMost[np.argsort(leftMost[:, 1]), :]
-	(tl, bl) = leftMost
- 
-	# now that we have the top-left coordinate, use it as an
-	# anchor to calculate the Euclidean distance between the
-	# top-left and right-most points; by the Pythagorean
-	# theorem, the point with the largest distance will be
-	# our bottom-right point
-	D = distance.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
-	(br, tr) = rightMost[np.argsort(D)[::-1], :]
-    
-	# return the coordinates in top-left, top-right,
-	# bottom-right, and bottom-left order
+    # grab the left-most and right-most points from the sorted
+    # x-roodinate points
+    leftMost = xSorted[:2, :]
+    rightMost = xSorted[2:, :]
+
+    # now, sort the left-most coordinates according to their
+    # y-coordinates so we can grab the top-left and bottom-left
+    # points, respectively
+    leftMost = leftMost[np.argsort(leftMost[:, 1]), :]
+    (tl, bl) = leftMost
+
+    # now that we have the top-left coordinate, use it as an
+    # anchor to calculate the Euclidean distance between the
+    # top-left and right-most points; by the Pythagorean
+    # theorem, the point with the largest distance will be
+    # our bottom-right point
+    #D = distance.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
+    #(br, tr) = rightMost[np.argsort(D)[::-1], :]
+    rightMost = rightMost[np.argsort(rightMost[:, 1]), :]
+    (tr, br) = rightMost
+
+    # return the coordinates in top-left, top-right,
+    # bottom-right, and bottom-left order
 
     ###### STRANGE br and tr mixed up
-	return np.array([tl, tr, br, bl], dtype="float32")
+    return np.array([tl, tr, br, bl], dtype="float32")
 
 
 # extend polygon to include black numbers
