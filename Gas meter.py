@@ -27,7 +27,7 @@ epochs = parameters.epochs
 
 
 # load the image
-image_names = ("IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg')[:1]
+image_names = ("IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg')#[:1]
 images =[]
 for image_name in range(len(image_names)):
     image = cv2.imread("./OpenCamera/"+image_names[image_name])
@@ -37,8 +37,8 @@ print('array shape: ', image_array.shape)
 
 numbers_list=[]
 for image in image_array:
-    figManager = plt.get_current_fig_manager()
-    figManager.window.showMaximized()
+    #figManager = plt.get_current_fig_manager()
+    #figManager.window.showMaximized()
 
     original_image= image
 
@@ -171,8 +171,8 @@ for image in image_array:
     numbers_array_new=numbers_array.copy().transpose(1,0,2,3)
     numbers_array += 100
     #img = cv2.drawContours(original_warped_image, [roi], -1, (0,150,125), 1)
-    plt.imshow(x_images[0])
-    plt.show()
+    #plt.imshow(x_images[0])
+    #plt.show()
     #print (numbers_array.shape)
 
     #for ind in range(7):
@@ -197,11 +197,31 @@ print(np.asarray(numbers_list).shape)
 
 # Load model if required
 model = pickle.load( open( "modelCNN.pck", "rb" ) )
-#model.summary()
+model.summary()
 #print('hzhz')
-for value in np.asarray(numbers_list):
+
+# Preparing validation data for model
+x_images2 = np.asarray(numbers_list).astype('float32') 
+#x_images_three_dim= x_images.reshape(-1,7,704,3)
+#x_images2 = x_images_three_dim.astype('float32')
+
+#x_images2 /= 256
+#x_images2 = 1-x_images2
+print (x_images2.shape)
+#print (x_images_three_dim.shape)
+#Xnew =x_images2.reshape((-1,7,704*3))
+#print (Xnew.shape)
+#for ind in range(8):
+#        plt.imshow(x_images[0,ind,:,:,3])
+#        plt.show()
+#for value in np.asarray(numbers_list):
+for value in np.asarray(x_images2):
     #out2 = model.predict(reshaped_test_data[0:7])
+    #value_reshaped= value.reshape((704*3,-1)).T
+    #print(value.shape)
+    
     out2 = model.predict(value[0:7])
+    #print(out2)
     #y =y_test_small.reshape([-1])
 
     print ('Prediction:    ',np.argmax(out2, axis=1))
