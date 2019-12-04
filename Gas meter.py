@@ -139,10 +139,10 @@ for c in cnts:
 
 
 screenCnt= screenCnt[:,0,:]
-#print(screenCnt)
-img = cv2.drawContours(screen_image, [approx], -1, (0,255,255), 3)
-plt.imshow(img)
-plt.show()
+print(screenCnt)
+#img = cv2.drawContours(screen_image, [approx], -1, (0,255,255), 3)
+#plt.imshow(img)
+#plt.show()
 
 def get_shortest(polygon):
     shortest = distance.euclidean(polygon[-1], polygon[0])
@@ -157,7 +157,7 @@ def get_shortest(polygon):
     return index_shortest
 
 index_shortest= get_shortest(screenCnt)
-#print(index_shortest)
+print(index_shortest)
 
 def get_intersect(a1, a2, b1, b2):
     """ 
@@ -182,18 +182,20 @@ def remove_corner(polygon, index_shortest):
     print(index_shortest)
     print(intersect_x," ", intersext_y)
     polygon[index_shortest]=[intersect_x,intersext_y]
-    polygon_short=np.delete(polygon,index_shortest+1,axis=0)
+    polygon_short=np.delete(polygon,index_shortest-1,axis=0)
     return(polygon_short)
 
 if len(screenCnt)==5:
     bounding_box = remove_corner(screenCnt,index_shortest)
-    print(bounding_box)
+    #print('huhu')
+    #print(bounding_box)
 else:
     bounding_box=screenCnt
-
-#img = cv2.drawContours(screen_image, [bounding_box], -1, (0,255,255), 3)
-#plt.imshow(img)
-#plt.show()
+#print('haha')
+#print(bounding_box)
+img = cv2.drawContours(screen_image, [bounding_box], -1, (0,255,255), 3)
+plt.imshow(img)
+plt.show()
 
 src_pnts = np.array([[bounding_box[0][0],bounding_box[0][1]],[bounding_box[3][0],bounding_box[3][1]],[bounding_box[2][0],bounding_box[2][1]]],np.float32)
 dst_pnts = np.array([[bounding_box[0][0],bounding_box[0][1]],[bounding_box[3][0],bounding_box[3][1]],[bounding_box[3][0],bounding_box[2][1]]],np.float32)
