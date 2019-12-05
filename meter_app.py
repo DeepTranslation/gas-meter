@@ -11,11 +11,13 @@ import pygame
 import cProfile
 import time
 import timeit
+import numpy as np
+import cv2
 
 
 class App:
-    width = 640
-    height = 480
+    width = 1280
+    height = 960
     tileWidth = 20
     tileHeight = 20
     SAND = (194, 178, 128)
@@ -27,8 +29,12 @@ class App:
     def __init__(self):
         #self.view = view.View()
         pygame.init()
+        pygame.font.init()
         self._surface = pygame.display.set_mode((self.width, self.height), pygame.HWSURFACE)
         self._surface.fill(self.white)
+        self.background = pygame.Surface(self._surface.get_size())
+        self.background = self.background.convert()
+        self.background.fill((250, 250, 250))
         pygame.display.set_caption('Meter Detection')
         
         pygame.draw.rect(self._surface, self.SAND,
@@ -36,7 +42,7 @@ class App:
                       self.tileHeight*0.5,
                       self.tileWidth,
                       self.tileHeight])
-        
+        pygame.display.flip()
         self.run()
 
     def run(self):
@@ -50,7 +56,7 @@ class App:
             round = rounds.Round(i, self.loops)
             round.on_execute()
         '''
-
+        first_execution = True
         running = True
         while running:
             for i in pygame.event.get():
@@ -63,12 +69,31 @@ class App:
                 
                 running = False
                 pygame.quit()
-            if (keys[pygame.K_l]):
+            '''
+            if pygame.font:
+                #font = pygame.font.SysFont('arial', 45)
+                #font = pygame.font.get_default_font()
+                #theFont = pygame.font.SysFont("Arial", 40, False, False)
+                theFont = pygame.font.Font(None, 20)
+                text = theFont.render("blablabla", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=self.background.get_width()/2)
+
+                self.background.blit(text, textpos)
+            '''
+            if (keys[pygame.K_l])and first_execution:
+                first_execution = False
                 image_array = gas_meter.loadImages()
                 print(image_array.shape)
-
-            if running:
-                pygame.display.flip()
+            
+                screen_image = cv2.cvtColor(image_array[0], cv2.COLOR_RGB2BGR)
+                new_image =pygame.surfarray.make_surface(screen_image)
+                flipped_image = pygame.transform.flip(new_image,False, True)
+                rotated_image = pygame.transform.rotate(flipped_image, 270)
+                
+                self._surface.blit(rotated_image,(0, 0))
+                pygame.display.update()
+            #if running:
+                #pygame.display.flip()
 
         time.sleep (100.0 / 1000.0);
         pr.disable()
