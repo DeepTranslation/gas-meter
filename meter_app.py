@@ -83,16 +83,43 @@ class App:
         first_execution = True
         running = True
         counter = 0
+        digits_list = []
         while running:
             key = 0
             for i in pygame.event.get():
                 if i.type == pygame.QUIT:
                     running = False
+                    print(digits_list)
                     pygame.quit()
                     break
 
-                #if i.type == pygame.KEYDOWN and not first_execution:
-                 #   if i.key in range(pygame.K_KP0,pygame.K_KP9+1):
+                if i.type == pygame.KEYDOWN and counter in range(0,6):
+                    if i.key in range(pygame.K_KP0,pygame.K_KP9+1):
+                        if i.key == pygame.K_KP0:
+                            digits_list.append(0)
+                        if i.key == pygame.K_KP1:
+                            digits_list.append(1)
+                        if i.key == pygame.K_KP2:
+                            digits_list.append(2)
+                        if i.key == pygame.K_KP3:
+                            digits_list.append(3)
+                        if i.key == pygame.K_KP4:
+                            digits_list.append(4)
+                        if i.key == pygame.K_KP5:
+                            digits_list.append(5)
+                        if i.key == pygame.K_KP6:
+                            digits_list.append(6)
+                        if i.key == pygame.K_KP7:
+                            digits_list.append(7)
+                        if i.key == pygame.K_KP8:
+                            digits_list.append(8)
+                        if i.key == pygame.K_KP9:
+                            digits_list.append(9)
+                    digit = self.numbers_list[0,counter+1] * 256
+                    self.showDigit(digit)
+                    pygame.display.flip()
+                    counter += 1
+
                         
 
             keys = pygame.key.get_pressed()
@@ -105,7 +132,7 @@ class App:
                 #       read key from keyboard
                 #       store img_num, digit arrray and target digit value in array
 
-
+                print(digits_list)
                 running = False
                 pygame.quit()
             '''
@@ -120,7 +147,7 @@ class App:
                 self.background.blit(text, textpos)
             '''
             if (keys[pygame.K_l])and first_execution:
-                while counter < 6:
+                if counter == 100:
                     
                     digit = self.numbers_list[0,counter+1] * 256
                     self.showDigit(digit)
