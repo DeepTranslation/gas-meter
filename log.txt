@@ -1,0 +1,6 @@
+ROI rectangle
+- finding right color and edge detection settings
+- right side edge not very clear due to red color fading into the background
+- black rectangle not helpful because there are too many other black areas in the images
+- variety between images (slant, colour hues)
+

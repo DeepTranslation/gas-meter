@@ -48,17 +48,26 @@ class App:
         self.numbers_list = gas_meter.getDigits(self.image_array)
         self.current_digit =0
         #print(numbers_list.shape)   
-        digit = self.numbers_list[0,1] * 256
+        digit = self.numbers_list[0,0] * 256
         #print(digit)
         #screen_image = cv2.cvtColor(digit, cv2.COLOR_RGB2BGR)
         #
+        self.showDigit(digit)
+        '''
+        new_image =pygame.surfarray.make_surface(digit)
+        flipped_image = pygame.transform.flip(new_image,False, True)
+        rotated_image = pygame.transform.rotate(flipped_image, 270)
+        resized_image = pygame.transform.scale(rotated_image, (digit.shape[1]*4, digit.shape[0]*4))
+        self._surface.blit(resized_image,(100, 100)) '''
+        pygame.display.flip()
+        self.run()
+    
+    def showDigit(self, digit):
         new_image =pygame.surfarray.make_surface(digit)
         flipped_image = pygame.transform.flip(new_image,False, True)
         rotated_image = pygame.transform.rotate(flipped_image, 270)
         resized_image = pygame.transform.scale(rotated_image, (digit.shape[1]*4, digit.shape[0]*4))
         self._surface.blit(resized_image,(100, 100)) 
-        pygame.display.flip()
-        self.run()
 
     def run(self):
         pr = cProfile.Profile()
@@ -73,6 +82,7 @@ class App:
         '''
         first_execution = True
         running = True
+        counter = 0
         while running:
             key = 0
             for i in pygame.event.get():
@@ -95,7 +105,7 @@ class App:
                 #       read key from keyboard
                 #       store img_num, digit arrray and target digit value in array
 
-                
+
                 running = False
                 pygame.quit()
             '''
@@ -110,29 +120,21 @@ class App:
                 self.background.blit(text, textpos)
             '''
             if (keys[pygame.K_l])and first_execution:
+                while counter < 6:
+                    
+                    digit = self.numbers_list[0,counter+1] * 256
+                    self.showDigit(digit)
+                    pygame.display.flip()
+                    counter += 1
+                    time.sleep (1000.0 / 1000.0)
                 '''
-                first_execution = False
-                image_array = gas_meter.loadImages()
-                print(image_array.shape)
-                numbers_list = gas_meter.getDigits(image_array)
-                print(numbers_list.shape)
-                
-                digit = numbers_list[0,1] * 256
-                #print(digit)
-                #screen_image = cv2.cvtColor(digit, cv2.COLOR_RGB2BGR)
-                #
-                new_image =pygame.surfarray.make_surface(digit)
-                flipped_image = pygame.transform.flip(new_image,False, True)
-                rotated_image = pygame.transform.rotate(flipped_image, 270)
-                resized_image = pygame.transform.scale(rotated_image, (digit.shape[1]*4, digit.shape[0]*4))
-                self._surface.blit(resized_image,(100, 100))
                 
                 pygame.display.update()'''
             #if running:
                 #pygame.display.flip()
             #if i in xrange((keys[pygame.K_KP0])
 
-        time.sleep (100.0 / 1000.0);
+        time.sleep (100.0 / 1000.0)
         pr.disable()
  
         #pr.print_stats(sort='time')
