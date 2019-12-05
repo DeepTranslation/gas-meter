@@ -38,7 +38,7 @@ def loadImages():
     return image_array
 
 #image_array = loadImages()
-def stuff():
+def getDigits(image_array):
     numbers_list=[]
     for image in image_array:
         #figManager = plt.get_current_fig_manager()
@@ -187,9 +187,11 @@ def stuff():
         reshaped_test_data = np.asarray(reshaped_test_data)
         numbers_list.append(reshaped_test_data)
     print(np.asarray(numbers_list).shape)
-
+    return (np.asarray(numbers_list))
     #print('hzhz')
 
+
+def stuff():
     # Load model if required
     model = pickle.load( open( "modelCNN.pck", "rb" ) )
     model.summary()

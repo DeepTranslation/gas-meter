@@ -42,6 +42,21 @@ class App:
                       self.tileHeight*0.5,
                       self.tileWidth,
                       self.tileHeight])
+
+        self.image_array = gas_meter.loadImages()
+        #print(image_array.shape)
+        self.numbers_list = gas_meter.getDigits(self.image_array)
+        self.current_digit =0
+        #print(numbers_list.shape)   
+        digit = self.numbers_list[0,1] * 256
+        #print(digit)
+        #screen_image = cv2.cvtColor(digit, cv2.COLOR_RGB2BGR)
+        #
+        new_image =pygame.surfarray.make_surface(digit)
+        flipped_image = pygame.transform.flip(new_image,False, True)
+        rotated_image = pygame.transform.rotate(flipped_image, 270)
+        resized_image = pygame.transform.scale(rotated_image, (digit.shape[1]*4, digit.shape[0]*4))
+        self._surface.blit(resized_image,(100, 100)) 
         pygame.display.flip()
         self.run()
 
@@ -59,13 +74,27 @@ class App:
         first_execution = True
         running = True
         while running:
+            key = 0
             for i in pygame.event.get():
                 if i.type == pygame.QUIT:
                     running = False
                     pygame.quit()
                     break
+
+                #if i.type == pygame.KEYDOWN and not first_execution:
+                 #   if i.key in range(pygame.K_KP0,pygame.K_KP9+1):
+                        
+
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_ESCAPE]):
+                
+
+                # for img_num in number of images:
+                #   for digit_num in number of digits:
+                #       show image
+                #       read key from keyboard
+                #       store img_num, digit arrray and target digit value in array
+
                 
                 running = False
                 pygame.quit()
@@ -81,24 +110,32 @@ class App:
                 self.background.blit(text, textpos)
             '''
             if (keys[pygame.K_l])and first_execution:
+                '''
                 first_execution = False
                 image_array = gas_meter.loadImages()
                 print(image_array.shape)
-            
-                screen_image = cv2.cvtColor(image_array[0], cv2.COLOR_RGB2BGR)
-                new_image =pygame.surfarray.make_surface(screen_image)
+                numbers_list = gas_meter.getDigits(image_array)
+                print(numbers_list.shape)
+                
+                digit = numbers_list[0,1] * 256
+                #print(digit)
+                #screen_image = cv2.cvtColor(digit, cv2.COLOR_RGB2BGR)
+                #
+                new_image =pygame.surfarray.make_surface(digit)
                 flipped_image = pygame.transform.flip(new_image,False, True)
                 rotated_image = pygame.transform.rotate(flipped_image, 270)
+                resized_image = pygame.transform.scale(rotated_image, (digit.shape[1]*4, digit.shape[0]*4))
+                self._surface.blit(resized_image,(100, 100))
                 
-                self._surface.blit(rotated_image,(0, 0))
-                pygame.display.update()
+                pygame.display.update()'''
             #if running:
                 #pygame.display.flip()
+            #if i in xrange((keys[pygame.K_KP0])
 
         time.sleep (100.0 / 1000.0);
         pr.disable()
  
-        pr.print_stats(sort='time')
+        #pr.print_stats(sort='time')
 
 if __name__ == "__main__":
     App().run()
