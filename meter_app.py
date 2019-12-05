@@ -93,29 +93,12 @@ class App:
                     pygame.quit()
                     break
 
-                if i.type == pygame.KEYDOWN and counter in range(0,6):
+                if i.type == pygame.KEYDOWN and counter in range(0,7):
                     if i.key in range(pygame.K_KP0,pygame.K_KP9+1):
-                        if i.key == pygame.K_KP0:
-                            digits_list.append(0)
-                        if i.key == pygame.K_KP1:
-                            digits_list.append(1)
-                        if i.key == pygame.K_KP2:
-                            digits_list.append(2)
-                        if i.key == pygame.K_KP3:
-                            digits_list.append(3)
-                        if i.key == pygame.K_KP4:
-                            digits_list.append(4)
-                        if i.key == pygame.K_KP5:
-                            digits_list.append(5)
-                        if i.key == pygame.K_KP6:
-                            digits_list.append(6)
-                        if i.key == pygame.K_KP7:
-                            digits_list.append(7)
-                        if i.key == pygame.K_KP8:
-                            digits_list.append(8)
-                        if i.key == pygame.K_KP9:
-                            digits_list.append(9)
-                    digit = self.numbers_list[0,counter+1] * 256
+                        #    print(getattr(pygame,'K_KP{}'.format(i)))
+                        digits_list.append(i.key-pygame.K_kP0)
+                        
+                    digit = self.numbers_list[0,counter+1] * 256  ##################################################################################
                     self.showDigit(digit)
                     pygame.display.flip()
                     counter += 1
