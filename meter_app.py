@@ -158,8 +158,11 @@ class App:
                         outfile = open(filename,'wb')
                         pickle.dump(complete_images_list,outfile)
                         outfile.close()
+                    
+                    if i.key == pygame.K_o:
+# save complete images list as pickled file
 
-            keys = pygame.key.get_pressed()
+                        keys = pygame.key.get_pressed()
             if (keys[pygame.K_ESCAPE]):
                 
 
