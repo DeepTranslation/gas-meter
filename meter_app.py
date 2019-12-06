@@ -13,6 +13,7 @@ import time
 import timeit
 import numpy as np
 import cv2
+import pickle
 
 
 class App:
@@ -102,12 +103,17 @@ class App:
 
                 if i.type == pygame.KEYDOWN and image_counter in range(0,self.number_images+1) and digit_counter in range(0,7+1):
                     if i.key in range(pygame.K_KP0,pygame.K_KP9+1): 
-                        # enter digit value
+#### with keypad keys: enter digit value
                         #    print(getattr(pygame,'K_KP{}'.format(i)))
                         digits_list.append(i.key-pygame.K_KP0)
                         if digit_counter <6:        
                             digit_counter += 1
-                        else:                                                       # if complete number entered, store number in image number list
+                        else:                                                       
+# if complete number entered, store number in complete images list:
+# tuple: ((image_name = str),
+#         (digit values = list of 7 int),
+#         (image arrays of individual digits = array.shape = (7,32,22,3))
+
                             image_list = (self.image_names[image_counter], digits_list, self.numbers_list[image_counter])
                             complete_images_list.append(image_list)
 
@@ -129,13 +135,16 @@ class App:
                         print(digits_list, ' ', image_list)
                     
                     if i.key == pygame.K_d:
+# with key "d": delete previously entered digit value and reset image
                         if digit_counter >0:
                             digit_counter -= 1
                             del digits_list[-1]  
                         elif image_counter >0:
                             digit_counter = 6
                             image_counter -= 1
-                            digits_list = complete_images_list[-1,1]
+                            image_list = complete_images_list[-1]
+                            digits_list = image_list[1]
+                            del digits_list[-1]
                             del complete_images_list[-1]   
 
 
@@ -143,18 +152,17 @@ class App:
                         self.showDigit(digit)
                         pygame.display.flip()
                     
-
-                     
+                    if i.key == pygame.K_s:
+# save complete images list as pickled file
+                        filename = 'imagelist.pck'
+                        outfile = open(filename,'wb')
+                        pickle.dump(complete_images_list,outfile)
+                        outfile.close()
 
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_ESCAPE]):
                 
 
-                # for img_num in number of images:
-                #   for digit_num in number of digits:
-                #       show image
-                #       read key from keyboard
-                #       store img_num, digit arrray and target digit value in array
 
                 print(digits_list)
                 running = False
