@@ -28,14 +28,14 @@ epochs = parameters.epochs
 
 # load the image
 def loadImages():
-    image_names = ("IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg')[:1]
+    image_names = ["IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg'][:2]
     images =[]
     for image_name in range(len(image_names)):
         image = cv2.imread("./OpenCamera/"+image_names[image_name])
         images.append(image)
     image_array = np.asarray(images)
     #print('array shape: ', image_array.shape)
-    return image_array
+    return image_array, image_names
 
 #image_array = loadImages()
 def getDigits(image_array):

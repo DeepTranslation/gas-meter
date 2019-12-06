@@ -25,6 +25,7 @@ class App:
     white = [255, 255, 255]
     rounds = 5
     loops = 100
+    number_images = 0
 
     def __init__(self):
         #self.view = view.View()
@@ -43,7 +44,9 @@ class App:
                       self.tileWidth,
                       self.tileHeight])
 
-        self.image_array = gas_meter.loadImages()
+        self.image_array, self.image_names = gas_meter.loadImages()
+        self.number_images = len(self.image_array)
+        
         #print(image_array.shape)
         self.numbers_list = gas_meter.getDigits(self.image_array)
         self.current_digit =0
@@ -82,8 +85,12 @@ class App:
         '''
         first_execution = True
         running = True
-        counter = 0
+        image_name = self.image_names[0]
+        digit_counter = 0
+        image_counter = 0
         digits_list = []
+        image_list = []
+        complete_images_list = []
         while running:
             key = 0
             for i in pygame.event.get():
@@ -93,17 +100,51 @@ class App:
                     pygame.quit()
                     break
 
-                if i.type == pygame.KEYDOWN and counter in range(0,7):
-                    if i.key in range(pygame.K_KP0,pygame.K_KP9+1):
+                if i.type == pygame.KEYDOWN and image_counter in range(0,self.number_images+1) and digit_counter in range(0,7+1):
+                    if i.key in range(pygame.K_KP0,pygame.K_KP9+1): 
+                        # enter digit value
                         #    print(getattr(pygame,'K_KP{}'.format(i)))
-                        digits_list.append(i.key-pygame.K_kP0)
-                        
-                    digit = self.numbers_list[0,counter+1] * 256  ##################################################################################
-                    self.showDigit(digit)
-                    pygame.display.flip()
-                    counter += 1
+                        digits_list.append(i.key-pygame.K_KP0)
+                        if digit_counter <6:        
+                            digit_counter += 1
+                        else:                                                       # if complete number entered, store number in image number list
+                            image_list = (self.image_names[image_counter], digits_list, self.numbers_list[image_counter])
+                            complete_images_list.append(image_list)
 
+                            digits_list = []
+                            digit_counter = 0
+                            image_counter += 1
+                        if image_counter < self.number_images:
+                            digit = self.numbers_list[image_counter,digit_counter] * 256  
+                            self.showDigit(digit)
+                            pygame.display.flip()
+                        else:
+                            pygame.draw.rect(self._surface, self.GRASS,
+                                            [ self.width/2,
+                                                self.height/2,
+                                                self.tileWidth*2,
+                                                self.tileHeight*2])
+                            pygame.display.flip()
                         
+                        print(digits_list, ' ', image_list)
+                    
+                    if i.key == pygame.K_d:
+                        if digit_counter >0:
+                            digit_counter -= 1
+                            del digits_list[-1]  
+                        elif image_counter >0:
+                            digit_counter = 6
+                            image_counter -= 1
+                            digits_list = complete_images_list[-1,1]
+                            del complete_images_list[-1]   
+
+
+                        digit = self.numbers_list[image_counter,digit_counter] * 256  
+                        self.showDigit(digit)
+                        pygame.display.flip()
+                    
+
+                     
 
             keys = pygame.key.get_pressed()
             if (keys[pygame.K_ESCAPE]):
@@ -128,7 +169,7 @@ class App:
                 textpos = text.get_rect(centerx=self.background.get_width()/2)
 
                 self.background.blit(text, textpos)
-            '''
+            
             if (keys[pygame.K_l])and first_execution:
                 if counter == 100:
                     
@@ -137,7 +178,7 @@ class App:
                     pygame.display.flip()
                     counter += 1
                     time.sleep (1000.0 / 1000.0)
-                '''
+                
                 
                 pygame.display.update()'''
             #if running:
