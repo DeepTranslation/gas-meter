@@ -35,13 +35,17 @@ def loadImages():
     files = glob.glob(data_path)
     images =[]
     image_names=[]
+    image_counter = 0
     for file in files:
     #for image_name in range(len(image_names)):
         #image = cv2.imread("./OpenCamera/"+image_names[image_name])
-        image = cv2.imread(file)
-        images.append(image)
-        image_names.append(file)
+        if image_counter < 10:
+            image = cv2.imread(file)
+            images.append(image)
+            image_names.append(file)
+        image_counter += 1
     image_array = np.asarray(images)
+
     #print('array shape: ', image_array.shape)
     return image_array, image_names
 
@@ -103,9 +107,10 @@ def getDigits(image_array):
         
         #print('haha')
         #print(bounding_box)
-        img = cv2.drawContours(screen_image.copy(), [bounding_box], -1, (255,0,255), 1)
+        #img = cv2.drawContours(screen_image, [bounding_box], -1, (255,0,255), 1)
         #plt.imshow(img)
         #plt.show()
+
 
         #print ('unordered bounding box: ', bounding_box)
         bounding_box = contour_manipulation.order_points(bounding_box)
@@ -116,18 +121,28 @@ def getDigits(image_array):
         # 3 = lebt bottom
 
         # warp bounding box
+        middle_left=(bounding_box[0][0]+bounding_box[3][0])/2
+        #bounding_box[0][0]= middle_left
+        #bounding_box[3][0]= middle_left
+        bounding_box[0]=(bounding_box[0]+bounding_box[1]+bounding_box[3]-bounding_box[2])/2
+        img = cv2.drawContours(screen_image, [np.asarray(bounding_box,int)], -1, (255,0,255), 1)
+        #plt.imshow(img)
+        #plt.show()
         warped_box = bounding_box.copy()
-        warped_box[3][0] = warped_box[0][0]
-        warped_box[1][1] = warped_box[0][1]
+        warped_box[0][0] = warped_box[3][0]
+        warped_box[0][1] = warped_box[1][1]
         warped_box[2][0] = warped_box[1][0]
         warped_box[2][1] = warped_box[3][1]
         #src_pnts = np.array([[bounding_box[3][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[1][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
         #dst_pnts = np.array([[bounding_box[0][0],bounding_box[3][1]],[bounding_box[1][0],bounding_box[0][1]],[bounding_box[0][0],bounding_box[0][1]]],np.float32)
 
 
-        tfm = cv2.getPerspectiveTransform(bounding_box,warped_box)
-        warped_image = cv2.warpPerspective(screen_image,tfm,(np.size(screen_image, 1), np.size(screen_image, 0)))
-        original_warped_image= cv2.warpPerspective(original_image,tfm,(np.size(original_image, 1), np.size(original_image, 0)))
+        #tfm = cv2.getPerspectiveTransform(bounding_box,warped_box)
+        #warped_image = cv2.warpPerspective(screen_image,tfm,(np.size(screen_image, 1), np.size(screen_image, 0)))
+        #original_warped_image= cv2.warpPerspective(original_image,tfm,(np.size(original_image, 1), np.size(original_image, 0)))
+        tfm = cv2.getAffineTransform(bounding_box[1:],warped_box[1:])
+        warped_image = cv2.warpAffine(screen_image,tfm,(np.size(screen_image, 1), np.size(screen_image, 0)))
+        original_warped_image= cv2.warpAffine(original_image,tfm,(np.size(original_image, 1), np.size(original_image, 0)))
 
 
         # extend polygon to include black numbers
@@ -138,8 +153,10 @@ def getDigits(image_array):
         #print(bounding_box)
         img = cv2.drawContours(warped_image.copy(), [extended_polygon.astype(int)], -1, (200,255,255), 1)
         #img = cv2.drawContours(warped_image.copy(), [warped_box.astype(int)], -1, (200,255,255), 1)
-        #plt.imshow(img)
-        #plt.show()
+        proportion= (extended_polygon[3][0]-extended_polygon[0][0])/(extended_polygon[2][1]-extended_polygon[1][1])
+        print("{0:.2f}".format(proportion))
+        plt.imshow(img)
+        plt.show()
 
         def get_roi(polygon):
             upper_left=polygon[0]+0.08*(polygon[3]-polygon[0])

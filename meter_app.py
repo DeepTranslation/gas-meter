@@ -163,14 +163,17 @@ class App:
 # save complete images list as pickled file
 
                         keys = pygame.key.get_pressed()
+
+                    if i.key == pygame.K_ESCAPE:
+                        #print(digits_list)
+                        running = False
+                        pygame.quit()
+            '''
             if (keys[pygame.K_ESCAPE]):
-                
-
-
                 print(digits_list)
                 running = False
                 pygame.quit()
-            '''
+            
             if pygame.font:
                 #font = pygame.font.SysFont('arial', 45)
                 #font = pygame.font.get_default_font()
