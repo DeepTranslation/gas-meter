@@ -53,9 +53,7 @@ def loadImages():
 def getDigits(image_array):
     numbers_list=[]
     for image in image_array:
-        #figManager = plt.get_current_fig_manager()
-        #figManager.window.showMaximized()
-
+ 
         original_image= image
 
         screen_image, image_mask,edged, screen_output = image_preparation.img_prep(image)
