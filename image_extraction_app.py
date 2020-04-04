@@ -44,7 +44,6 @@ class App:
     RED = (255, 0, 0)
     Corners = ["Upper Left Corner", "Upper Right Corner", "Lower Left Corner", \
     "Lower Right Corner", "END"]
-
     num_images_to_load = 2
     num_corners = 4
 
@@ -98,97 +97,98 @@ class App:
         Main Class execution.
         '''
         pr = cProfile.Profile()
-        pr.enable() 
+        pr.enable()
         running = True
         corner_counter = 0
         image_counter = 0
-        self.corner_list = []
+        #self.corner_list = []
         self.image_list = []
-        complete_images_list = []
+        #complete_images_list = []
         while running:
-            
+
             for i in pygame.event.get():
                 if i.type == pygame.QUIT:
                     running = False
                     #print(corner_list)
                     pygame.quit()
                     break
-                if i.type == pygame.MOUSEBUTTONDOWN and i.button == 1 and image_counter in range(0,self.num_images_to_load+1) and corner_counter in range(0,self.num_corners):
-                    mouse_x,mouse_y= i.pos
-                    print(mouse_x,mouse_y)
-                    self.corner_list.append(i.pos)
+                if i.type == pygame.MOUSEBUTTONDOWN and i.button == 1 and \
+                image_counter in range(0, self.num_images_to_load+1) and \
+                corner_counter in range(0, self.num_corners):
+                    mouse_x, mouse_y = i.pos
+                    print(mouse_x, mouse_y)
+                    self.corner_array[image_counter, corner_counter] = i.pos
+                    #self.corner_list.append(i.pos)
                     self.image_list.append(self.image_names[image_counter])
                     image_counter += 1
                     if image_counter == self.num_images_to_load:
-                        image_counter=0
-                        corner_counter+=1
+                        image_counter = 0
+                        corner_counter += 1
                         if corner_counter%2:
-                            self.text_surface_obj = self.font_obj.render(self.Corners[corner_counter], True, self.GREEN, self.RED)
-                        else: 
-                            self.text_surface_obj = self.font_obj.render(self.Corners[corner_counter], True, self.GREEN, self.BLUE)
-
-
-                        
-                    image = self.image_array[image_counter] 
+                            self.text_surface_obj = \
+                            self.font_obj.render(self.Corners[corner_counter], \
+                            True, self.GREEN, self.RED)
+                        else:
+                            self.text_surface_obj = \
+                            self.font_obj.render(self.Corners[corner_counter], \
+                            True, self.GREEN, self.BLUE)
+                    image = self.image_array[image_counter]
                     self.show_image(image)
                     self._surface.blit(self.text_surface_obj, self.text_rect_obj)
                     pygame.display.flip()
-                    '''
-                    Load Images in sets of 20
-                        for each corner seperately
-                        Show images one by one and mark corner points of the gas meter section with a mouse click
-                        store coordinates in list
-                    '''
 
-                if i.type == pygame.KEYDOWN :
+                    #Load Images in sets of 20
+                    #    for each corner seperately
+                    #    Show images one by one and mark corner points \
+                    #       of the gas meter section with a mouse click
+                    #    store coordinates in list
+
+                if i.type == pygame.KEYDOWN:
                     if i.key == pygame.K_d:
     # with key "d": delete previously entered digit value and reset image
-                        if digit_counter >0:
-                            digit_counter -= 1
-                            del digits_list[-1]  
-                        elif image_counter >0:
-                            digit_counter = 6
-                            image_counter -= 1
-                            self.image_list = complete_images_list[-1]
-                            digits_list = self.image_list[1]
-                            del digits_list[-1]
-                            del complete_images_list[-1]   
+                       # if digit_counter > 0:
+                       #     digit_counter -= 1
+                       #     del digits_list[-1]
+                       # elif image_counter > 0:
+                       #     digit_counter = 6
+                       #     image_counter -= 1
+                       #     self.image_list = complete_images_list[-1]
+                       #     digits_list = self.image_list[1]
+                       #     del digits_list[-1]
+                       #     del complete_images_list[-1]
 
 
-                        digit = self.numbers_list[image_counter,digit_counter] * 256  
-                        self.showDigit(digit)
-                        pygame.display.flip()
-                        
+                        #digit = self.numbers_list[image_counter, digit_counter] * 256
+                        #self.showDigit(digit)
+                        #pygame.display.flip()
+                        pass
+
                     if i.key == pygame.K_s:
     # save complete images list as pickled file
                         filename = 'cornerlist.pck'
-                        outfile = open(filename,'wb')
-                        pickle.dump(self.corner_list,outfile)
+                        outfile = open(filename, 'wb')
+                        pickle.dump(self.corner_array, outfile)
                         outfile.close()
                         filename = 'imagenamelist.pck'
-                        outfile = open(filename,'wb')
-                        pickle.dump(self.image_list,outfile)
+                        outfile = open(filename, 'wb')
+                        pickle.dump(self.image_list, outfile)
                         outfile.close()
-                    
+
                     if i.key == pygame.K_o:
     # save complete images list as pickled file ?????
 
+                        pass
                         #keys = pygame.key.get_pressed()
 
 # closing program with EXCAPE
                     if i.key == pygame.K_ESCAPE:
-                        print(self.corner_list)
+                        #print(self.corner_list)
+                        print(self.corner_array)
                         running = False
-                        
-                        #pygame.quit()                   
-                        #break
-                    
-                    
-                    
-    
-        time.sleep (100.0 / 1000.0)
+
+        time.sleep(100.0 / 1000.0)
         pr.disable()
- 
+
         #pr.print_stats(sort='time')
 
 if __name__ == "__main__":
