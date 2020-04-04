@@ -29,7 +29,7 @@ num_images_to_load = 10
 
 
 # load num_images_to_load images
-def loadImages():
+def loadImages(num_images_to_load):
     #image_names = ["IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg'][:2]
     img_dir = "./OpenCamera/" # Enter Directory of all images 
     data_path = os.path.join(img_dir,'*g')
