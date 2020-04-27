@@ -14,6 +14,7 @@ import numpy as np
 #import cv2
 
 import pygame
+import parameters
 import image_extraction
 
 
@@ -38,43 +39,68 @@ class App:
 
     width = 1280
     height = 960
-    white = [255, 255, 255]
-    GREEN = (0, 255, 0)
-    BLUE = (0, 0, 180)
-    RED = (255, 0, 0)
+    #white = [255, 255, 255]
+    #GREEN = (0, 255, 0)
+    #BLUE = (0, 0, 180)
+    #RED = (255, 0, 0)
     Corners = ["Upper Left Corner", "Upper Right Corner", "Lower Left Corner", \
     "Lower Right Corner", "END"]
     num_images_to_load = 2
     num_corners = 4
+    IMG_DIR = parameters.IMG_DIR # Enter Directory of all images
+    COLOURS = parameters.COLOURS
+    image_list = []
 
     def __init__(self):
-        #self.view = view.View()
+        
         pygame.init()
+        
         pygame.font.init()
-        self.font_obj = pygame.font.Font('freesansbold.ttf', 32)
-        self.text_surface_obj = self.font_obj.render(self.Corners[0], True, self.GREEN, self.BLUE)
+        self.font_obj = pygame.font.Font('freesansbold.ttf', 50)
+        #self.text_surface_obj = self.font_obj.render(self.Corners[0], True, self.GREEN, self.BLUE)
+        self.text_surface_obj = self.font_obj.render(self.Corners[0], True, \
+        self.COLOURS["GREEN"], self.COLOURS["BLUE"])
         self.text_rect_obj = self.text_surface_obj.get_rect()
-        self.text_rect_obj.center = (200, 150)
+        self.text_rect_obj.center = (300, 150)
 
         self._surface = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
-        self._surface.fill(self.white)
-        #self.background = pygame.Surface(self._surface.get_size())
-        #self.background = self.background.convert()
-        #self.background.fill((250, 250, 250))
         pygame.display.set_caption('Image Sector Extraction')
-
+        
 
         ### Load num_images_to_load images to find the gas meter corners in them for training the NN
-        self.image_array, self.image_names = image_extraction.loadImages(self.num_images_to_load)
+        self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+        
+        self.number_images = self.num_images_to_load
 
+        
+        try:
+            image_name_file = open("imagenamelist.pck", "rb")
+            self.image_list = pickle.load(image_name_file)
+            num_images_loaded = len(self.image_list)
+            self.image_array, self.image_names = image_extraction.load_images(num_images_loaded, self.num_images_to_load)
+        except IOError:
+            image = self.image_array[0]
+            self.image_array, self.image_names = image_extraction.load_images(0, self.num_images_to_load)
+            print("File imagenamelist.pck not accessible")
+        finally:
+            image_name_file.close()
+
+
+        ### Creating the array for storing corner coordinates
+        self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
+'''
+        ### Load num_images_to_load images to find the gas meter corners in them for training the NN
+        self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+        
         self.number_images = len(self.image_array)
 
-        ### Creating the array
+        ### Creating the array for storing corner coordinates
         self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
-        print(self.corner_array.shape)
-
-        print(self.number_images)
+        
         image = self.image_array[0]
+''' 
+
+        self.scale = np.size(image, 1)/self.width
         #
         self.show_image(image)
         self._surface.blit(self.text_surface_obj, self.text_rect_obj)
@@ -89,8 +115,24 @@ class App:
         flipped_image = pygame.transform.flip(new_image, False, True)
         rotated_image = pygame.transform.rotate(flipped_image, 270)
         resized_image = pygame.transform.scale(rotated_image, (self.width, self.height))
-        #self._surface.blit(resized_image,(100, 100))
         self._surface.blit(resized_image, (0, 0))
+
+    def save_corner_lists(corner_list, name_list, filename):
+        '''
+        Pickles the array of corner coordinates and the list of image names in a pickle file.
+        
+        input: corner coordinate array and list of image names
+        output: pickled file "filename.pck"
+
+        '''
+        pickle_file = filename + ".pck"
+        outfile = open(filename, 'wb')
+        pickle.dump(corner_list, outfile)
+        pickle.dump(name_list,outfile)
+        outfile.close()
+
+        
+        
 
     def run(self):
         '''
@@ -99,10 +141,11 @@ class App:
         pr = cProfile.Profile()
         pr.enable()
         running = True
+        showing_images = False
         corner_counter = 0
         image_counter = 0
         #self.corner_list = []
-        self.image_list = []
+        #self.image_list = []
         #complete_images_list = []
         while running:
 
@@ -127,22 +170,17 @@ class App:
                         if corner_counter%2:
                             self.text_surface_obj = \
                             self.font_obj.render(self.Corners[corner_counter], \
-                            True, self.GREEN, self.RED)
+                            True, self.COLOURS["GREEN"], self.COLOURS["RED"])
                         else:
                             self.text_surface_obj = \
                             self.font_obj.render(self.Corners[corner_counter], \
-                            True, self.GREEN, self.BLUE)
+                            True, self.COLOURS["GREEN"], self.COLOURS["BLUE"])
                     image = self.image_array[image_counter]
                     self.show_image(image)
                     self._surface.blit(self.text_surface_obj, self.text_rect_obj)
                     pygame.display.flip()
 
-                    #Load Images in sets of 20
-                    #    for each corner seperately
-                    #    Show images one by one and mark corner points \
-                    #       of the gas meter section with a mouse click
-                    #    store coordinates in list
-
+   
                 if i.type == pygame.KEYDOWN:
                     if i.key == pygame.K_d:
     # with key "d": delete previously entered digit value and reset image
@@ -167,23 +205,57 @@ class App:
     # save complete images list as pickled file
                         filename = 'cornerlist.pck'
                         outfile = open(filename, 'wb')
-                        pickle.dump(self.corner_array, outfile)
+                        pickle.dump(np.round(self.corner_array*self.scale), outfile)
                         outfile.close()
+
                         filename = 'imagenamelist.pck'
                         outfile = open(filename, 'wb')
                         pickle.dump(self.image_list, outfile)
                         outfile.close()
 
                     if i.key == pygame.K_o:
-    # save complete images list as pickled file ?????
+    # open pickled file and show images with coordinates marked
+                        if not showing_images:
+                            showing_images = True
+                            self.corner_array = pickle.load(open("cornerlist.pck", "rb"))
+                            self.image_list = pickle.load(open("imagenamelist.pck", "rb"))
+                            self.number_images = self.corner_array.shape[0]
+                            #self.number_images = len(self.image_list)
+                            self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+                           
+                            
+                            self.image_counter = 0
+                            image = self.image_array[self.image_counter]
+                            cornered_image = image.astype(int)
+                            
+                            cornered_image[self.corner_array[self.image_counter, :, 1].astype(int), self.corner_array[self.image_counter, :, 0].astype(int)]=self.COLOURS["GREEN"]
 
-                        pass
-                        #keys = pygame.key.get_pressed()
+                            self.show_image(cornered_image)
+                            
+                            pygame.display.flip()
+
+                    if i.key == pygame.K_DOWN:
+    # show next image with coordinates marked
+                        if showing_images:
+                            
+                            if self.image_counter in range(0, self.number_images-1):
+                                self.image_counter += 1
+                                image = self.image_array[self.image_counter]
+                                cornered_image = image.astype(int)
+                                cornered_image[self.corner_array[self.image_counter, : , 1].astype(int), self.corner_array[self.image_counter, : , 0].astype(int)]=self.COLOURS["GREEN"]
+                                self.show_image(cornered_image)
+                                
+                                pygame.display.flip()
+
+                        
+                        
 
 # closing program with EXCAPE
+# requires pressing ESC twice (for whatever reason???)
                     if i.key == pygame.K_ESCAPE:
                         #print(self.corner_list)
                         print(self.corner_array)
+                        print(np.round(self.corner_array*self.scale))
                         running = False
 
         time.sleep(100.0 / 1000.0)

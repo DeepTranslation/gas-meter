@@ -22,17 +22,25 @@ import image_preparation
 # Keras libraries
 #import CNN
 
-batch_size = parameters.batch_size
-num_classes = parameters.num_classes
-epochs = parameters.epochs
-num_images_to_load = 10
+BATCH_SIZE = parameters.BATCH_SIZE
+NUM_CLASSES = parameters.NUM_CLASSES
+EPOCHS = parameters.EPOCHS
+IMG_DIR = parameters.IMG_DIR # Enter Directory of all images
+
+NUM_IMAGES_TO_LOAD = parameters.NUM_IMAGES_TO_LOAD
 
 
 # load num_images_to_load images
-def loadImages(num_images_to_load):
+def load_images(num_skip, num_images_to_load):
+    '''
+    Loading a set number of images from the a predefined directory
+    input: number of images to be skipped at the beginning of the directory,
+            number of images to load
+    return: array with the images, array with the image names
+    '''
     #image_names = ["IMG_20190124_064521.jpg",'IMG_20190124_090550.jpg','IMG_20190120_195711.jpg',"IMG_20190123_035927.jpg",'IMG_20190129_015030.jpg','IMG_20190201_020630.jpg'][:2]
-    img_dir = "./OpenCamera/" # Enter Directory of all images 
-    data_path = os.path.join(img_dir,'*g')
+    
+    data_path = os.path.join(IMG_DIR,'*g')
     files = glob.glob(data_path)
     images =[]
     image_names=[]
