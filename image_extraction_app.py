@@ -44,7 +44,7 @@ class App:
     #BLUE = (0, 0, 180)
     #RED = (255, 0, 0)
     Corners = ["Upper Left Corner", "Upper Right Corner", "Lower Left Corner", \
-    "Lower Right Corner", "END"]
+    "Lower Right Corner", "END - press ESC twice to exit"]
     num_images_to_load = 2
     num_corners = 4
     IMG_DIR = parameters.IMG_DIR # Enter Directory of all images
@@ -68,7 +68,7 @@ class App:
         
 
         ### Load num_images_to_load images to find the gas meter corners in them for training the NN
-        self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+        #self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
         
         self.number_images = self.num_images_to_load
 
@@ -88,7 +88,7 @@ class App:
 
         ### Creating the array for storing corner coordinates
         self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
-'''
+        '''
         ### Load num_images_to_load images to find the gas meter corners in them for training the NN
         self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
         
@@ -96,12 +96,9 @@ class App:
 
         ### Creating the array for storing corner coordinates
         self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
-        
+        '''
         image = self.image_array[0]
-''' 
-
         self.scale = np.size(image, 1)/self.width
-        #
         self.show_image(image)
         self._surface.blit(self.text_surface_obj, self.text_rect_obj)
         pygame.display.flip()
@@ -117,22 +114,30 @@ class App:
         resized_image = pygame.transform.scale(rotated_image, (self.width, self.height))
         self._surface.blit(resized_image, (0, 0))
 
-    def save_corner_lists(corner_list, name_list, filename):
+    def save_data(self, data, filename):
         '''
-        Pickles the array of corner coordinates and the list of image names in a pickle file.
+        Pickles the array a list of data in a pickle file.
         
-        input: corner coordinate array and list of image names
+        input: list to be pikled and filename to pickle list in
         output: pickled file "filename.pck"
 
         '''
+        
         pickle_file = filename + ".pck"
-        outfile = open(filename, 'wb')
-        pickle.dump(corner_list, outfile)
-        pickle.dump(name_list,outfile)
-        outfile.close()
+        data_file = open(pickle_file, "rb+")
+        try:
+            old_data = pickle.load(data_file)
+            #data_list = old_list.append(data_list)
+            if isinstance(old_data, list):
+                data =  old_data.append(data)
+            if isinstance(old_data, np.ndarray):
+                data =  np.concatenate((old_data,data))
+        except IOError:
+            print("File does not exist yet")
+        finally:
+            pickle.dump(data, data_file)
+            data_file.close()
 
-        
-        
 
     def run(self):
         '''
@@ -203,25 +208,28 @@ class App:
 
                     if i.key == pygame.K_s:
     # save complete images list as pickled file
-                        filename = 'cornerlist.pck'
-                        outfile = open(filename, 'wb')
-                        pickle.dump(np.round(self.corner_array*self.scale), outfile)
-                        outfile.close()
+                        #filename = 'cornerlist.pck'
+                        #outfile = open(filename, 'wb')
+                        #pickle.dump(np.round(self.corner_array*self.scale), outfile)
+                        #outfile.close()
+                        self.save_data(np.round(self.corner_array*self.scale),'cornerlist')
 
-                        filename = 'imagenamelist.pck'
-                        outfile = open(filename, 'wb')
-                        pickle.dump(self.image_list, outfile)
-                        outfile.close()
+                        #filename = 'imagenamelist.pck'
+                        #outfile = open(filename, 'wb')
+                        #pickle.dump(self.image_list, outfile)
+                        #outfile.close()
+                        self.save_data(self.image_list,'imagenamelist')
 
                     if i.key == pygame.K_o:
     # open pickled file and show images with coordinates marked
                         if not showing_images:
                             showing_images = True
                             self.corner_array = pickle.load(open("cornerlist.pck", "rb"))
+                            self.corner_array=np.round(self.corner_array/self.scale)
                             self.image_list = pickle.load(open("imagenamelist.pck", "rb"))
                             self.number_images = self.corner_array.shape[0]
                             #self.number_images = len(self.image_list)
-                            self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+                            self.image_array, self.image_names = image_extraction.load_images(0,self.num_images_to_load)
                            
                             
                             self.image_counter = 0
@@ -229,7 +237,7 @@ class App:
                             cornered_image = image.astype(int)
                             
                             cornered_image[self.corner_array[self.image_counter, :, 1].astype(int), self.corner_array[self.image_counter, :, 0].astype(int)]=self.COLOURS["GREEN"]
-
+                            
                             self.show_image(cornered_image)
                             
                             pygame.display.flip()
@@ -243,6 +251,8 @@ class App:
                                 image = self.image_array[self.image_counter]
                                 cornered_image = image.astype(int)
                                 cornered_image[self.corner_array[self.image_counter, : , 1].astype(int), self.corner_array[self.image_counter, : , 0].astype(int)]=self.COLOURS["GREEN"]
+                               
+
                                 self.show_image(cornered_image)
                                 
                                 pygame.display.flip()

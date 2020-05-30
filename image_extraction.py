@@ -48,10 +48,12 @@ def load_images(num_skip, num_images_to_load):
     for file in files:
     #for image_name in range(len(image_names)):
         #image = cv2.imread("./OpenCamera/"+image_names[image_name])
-        if image_counter < num_images_to_load:
-            image = cv2.imread(file)
-            images.append(image)
-            image_names.append(file)
+        image = cv2.imread(file)
+        if image_counter > num_skip:
+            if image_counter-num_skip < num_images_to_load:
+                
+                images.append(image)
+                image_names.append(file)
         image_counter += 1
     image_array = np.asarray(images)
 
