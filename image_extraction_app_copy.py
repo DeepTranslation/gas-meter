@@ -16,6 +16,7 @@ import numpy as np
 import pygame
 import parameters
 import image_extraction
+import image_extraction_copy
 
 
 class App:
@@ -45,7 +46,7 @@ class App:
     #RED = (255, 0, 0)
     Corners = ["Upper Left Corner", "Upper Right Corner", "Lower Left Corner", \
     "Lower Right Corner", "END - press ESC twice to exit"]
-    num_images_to_load = 2
+    num_images_to_load = 3
     num_corners = 4
     IMG_DIR = parameters.IMG_DIR # Enter Directory of all images
     COLOURS = parameters.COLOURS
@@ -77,7 +78,8 @@ class App:
             image_name_file = open("imagenamelist.pck", "rb")
             self.image_list = pickle.load(image_name_file)
             num_images_loaded = len(self.image_list)
-            self.image_array, self.image_names = image_extraction.load_images(num_images_loaded, self.num_images_to_load)
+            print("num_images_loaded: " , num_images_loaded)
+            self.image_array, self.image_names = image_extraction_copy.load_images(num_images_loaded, self.num_images_to_load)
         except IOError:
             image = self.image_array[0]
             self.image_array, self.image_names = image_extraction.load_images(0, self.num_images_to_load)
@@ -102,7 +104,7 @@ class App:
         self.show_image(image)
         self._surface.blit(self.text_surface_obj, self.text_rect_obj)
         pygame.display.flip()
-        print(self.image_array.shape)
+        print("self.image_array.shape: ",self.image_array.shape)
         self.run()
 
     def show_image(self, image):
@@ -128,14 +130,21 @@ class App:
         data_file = open(pickle_file, "rb+")
         try:
             old_data = pickle.load(data_file)
+            print("file info: ", filename, data, ":", old_data)
+            
             #data_list = old_list.append(data_list)
             if isinstance(old_data, list):
+                print("list:")
                 data =  old_data.append(data)
             if isinstance(old_data, np.ndarray):
+                print("array:")
                 data =  np.concatenate((old_data,data))
+                print("Saving data: old_data.shape: " , old_data.shape)
+                print("Saving data: data.shape: ", data.shape)
         except IOError:
             print("File does not exist yet")
         finally:
+            
             pickle.dump(data, data_file)
             data_file.close()
 
@@ -165,7 +174,7 @@ class App:
                 image_counter in range(0, self.num_images_to_load+1) and \
                 corner_counter in range(0, self.num_corners):
                     mouse_x, mouse_y = i.pos
-                    print(mouse_x, mouse_y)
+                    #print(mouse_x, mouse_y)
                     self.corner_array[image_counter, corner_counter] = i.pos
                     #self.corner_list.append(i.pos)
                     self.image_list.append(self.image_names[image_counter])
@@ -267,8 +276,8 @@ class App:
 # requires pressing ESC twice (for whatever reason???)
                     if i.key == pygame.K_ESCAPE:
                         #print(self.corner_list)
-                        print(self.corner_array)
-                        print(np.round(self.corner_array*self.scale))
+                        #print(self.corner_array)
+                        #print(np.round(self.corner_array*self.scale))
                         running = False
 
         time.sleep(100.0 / 1000.0)

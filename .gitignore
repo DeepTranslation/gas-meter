@@ -12,3 +12,5 @@ Gas Meter/*
 557CANONdrin/*
 2019/*
 2020-02/*
+*.pyc
+__pycache__
