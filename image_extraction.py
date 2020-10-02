@@ -50,7 +50,7 @@ def load_images(num_skip, num_images_to_load):
         #image = cv2.imread("./OpenCamera/"+image_names[image_name])
         image = cv2.imread(file)
         if image_counter > num_skip:
-            if image_counter-num_skip < num_images_to_load:
+            if image_counter -num_skip < num_images_to_load:
                 
                 images.append(image)
                 image_names.append(file)

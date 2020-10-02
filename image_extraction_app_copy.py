@@ -102,7 +102,7 @@ class App:
         self.show_image(image)
         self._surface.blit(self.text_surface_obj, self.text_rect_obj)
         pygame.display.flip()
-        print(self.image_array.size)
+        print(self.image_array.shape)
         self.run()
 
     def show_image(self, image):
@@ -181,7 +181,8 @@ class App:
                             self.text_surface_obj = \
                             self.font_obj.render(self.Corners[corner_counter], \
                             True, self.COLOURS["GREEN"], self.COLOURS["BLUE"])
-                    print(self.image_array.size)
+                    print(self.image_array.shape)
+                    print(image_counter)
                     image = self.image_array[image_counter]
                     self.show_image(image)
                     self._surface.blit(self.text_surface_obj, self.text_rect_obj)
