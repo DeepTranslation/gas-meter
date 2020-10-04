@@ -1,18 +1,7 @@
-#import gas_meter
-#import image_preparation
-#import contour_manipulation
-
-#import CNN
-#import view
-#import rounds
 import cProfile
-
 import time
-#import timeit
 import pickle
 import numpy as np
-#import cv2
-
 import pygame
 import parameters
 #import image_extraction
