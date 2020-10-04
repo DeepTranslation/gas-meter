@@ -104,6 +104,7 @@ class App:
         self.show_image(image)
         self._surface.blit(self.text_surface_obj, self.text_rect_obj)
         pygame.display.flip()
+        
         print("self.image_array.shape: ",self.image_array.shape)
         self.run()
 
@@ -135,7 +136,7 @@ class App:
             #data_list = old_list.append(data_list)
             if isinstance(old_data, list):
                 print("list:")
-                data =  old_data.append(data)
+                data =  old_data + data
             if isinstance(old_data, np.ndarray):
                 print("array:")
                 data =  np.concatenate((old_data,data))
@@ -144,7 +145,7 @@ class App:
         except IOError:
             print("File does not exist yet")
         finally:
-            
+            data_file.seek(0)
             pickle.dump(data, data_file)
             data_file.close()
 
@@ -171,25 +172,25 @@ class App:
                     pygame.quit()
                     break
                 if i.type == pygame.MOUSEBUTTONDOWN and i.button == 1 and \
-                image_counter in range(0, self.NUM_IMAGES_TO_LOAD+1) and \
-                corner_counter in range(0, self.num_corners):
-                    mouse_x, mouse_y = i.pos
+                image_counter >=0 and image_counter < self.NUM_IMAGES_TO_LOAD and \
+                corner_counter >=0 and corner_counter < self.num_corners:
+                    #mouse_x, mouse_y = i.pos
                     #print(mouse_x, mouse_y)
                     self.corner_array[image_counter, corner_counter] = i.pos
                     #self.corner_list.append(i.pos)
-                    self.image_list.append(self.image_names[image_counter])
+                    #self.image_list.append(self.image_names[image_counter])
                     image_counter += 1
                     if image_counter == self.NUM_IMAGES_TO_LOAD:
                         image_counter = 0
                         corner_counter += 1
-                        if corner_counter%2:
-                            self.text_surface_obj = \
-                            self.font_obj.render(self.Corners[corner_counter], \
-                            True, self.COLOURS["GREEN"], self.COLOURS["RED"])
+                        if corner_counter%2 == 1:
+                            bg_colour = "RED"
                         else:
-                            self.text_surface_obj = \
+                            bg_colour = "BLUE"
+
+                        self.text_surface_obj = \
                             self.font_obj.render(self.Corners[corner_counter], \
-                            True, self.COLOURS["GREEN"], self.COLOURS["BLUE"])
+                            True, self.COLOURS["GREEN"], self.COLOURS[bg_colour])
                     print(self.image_array.shape)
                     print(image_counter)
                     image = self.image_array[image_counter]
@@ -230,17 +231,21 @@ class App:
                         #outfile = open(filename, 'wb')
                         #pickle.dump(self.image_list, outfile)
                         #outfile.close()
-                        self.save_data(self.image_list,'imagenamelist')
+                        
+                        self.save_data(self.image_names,'imagenamelist')
 
                     if i.key == pygame.K_o:
     # open pickled file and show images with coordinates marked
                         if not showing_images:
                             showing_images = True
                             self.corner_array = pickle.load(open("cornerlist.pck", "rb"))
-                            self.corner_array=np.round(self.corner_array/self.scale)
+                            #self.corner_array=np.round(self.corner_array/self.scale)
+                            
                             self.image_list = pickle.load(open("imagenamelist.pck", "rb"))
                             self.number_images = self.corner_array.shape[0]
-                            #self.number_images = len(self.image_list)
+                            print("self.corner_array.shape[0]:", self.corner_array.shape[0])
+                            self.number_images = len(self.image_list)
+                            print("len(self.image_list):", len(self.image_list))
                             self.image_array, self.image_names = image_extraction_copy.load_images(0,self.NUM_IMAGES_TO_LOAD)
                            
                             

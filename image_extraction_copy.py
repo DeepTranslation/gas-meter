@@ -45,20 +45,26 @@ def load_images(num_skip, num_images_to_load):
     files = glob.glob(data_path)
     images =[]
     image_names=[] 
-    image_counter = 0
+    
     print("images to be skipped: ", num_skip, "images to load: ", num_images_to_load)
-    for file in files:
+    for image_file in files[num_skip:num_skip+num_images_to_load]:
+        image = cv2.imread(image_file)
+                
+        images.append(image)
+        image_names.append(image_file)
+    '''        
+    for image_counter, image_file in enumerate(files[num_skip:num_skip+num_images_to_load]):
     #for image_name in range(len(image_names)):
         #image = cv2.imread("./OpenCamera/"+image_names[image_name])
-        image = cv2.imread(file)
+        
         if image_counter > num_skip:
             if image_counter - num_skip <= num_images_to_load:
-                
+                image = cv2.imread(image_file)
                 images.append(image)
-                image_names.append(file)
+                image_names.append(image_file)
             else:
                 break
-        image_counter += 1
+    '''    
     image_array = np.asarray(images)
 
     #print('array shape: ', image_array.shape)
