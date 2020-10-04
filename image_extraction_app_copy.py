@@ -75,18 +75,15 @@ class App:
 
         
         try:
-            image_name_file = open("imagenamelist.pck", "rb")
-            self.image_list = pickle.load(image_name_file)
+            with open("imagenamelist.pck", "rb") as image_name_file:
+                self.image_list = pickle.load(image_name_file)
             num_images_loaded = len(self.image_list)
             print("num_images_loaded: " , num_images_loaded)
             self.image_array, self.image_names = image_extraction_copy.load_images(num_images_loaded, self.NUM_IMAGES_TO_LOAD)
         except IOError:
-            image = self.image_array[0]
             self.image_array, self.image_names = image_extraction_copy.load_images(0, self.NUM_IMAGES_TO_LOAD)
             print("File imagenamelist.pck not accessible")
-        finally:
-            image_name_file.close()
-
+ 
 
         ### Creating the array for storing corner coordinates
         self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
@@ -128,8 +125,9 @@ class App:
         '''
         
         pickle_file = filename + ".pck"
-        data_file = open(pickle_file, "rb+")
+        
         try:
+            data_file = open(pickle_file, "rb+")
             old_data = pickle.load(data_file)
             print("file info: ", filename, data, ":", old_data)
             
@@ -143,7 +141,8 @@ class App:
                 print("Saving data: old_data.shape: " , old_data.shape)
                 print("Saving data: data.shape: ", data.shape)
         except IOError:
-            print("File does not exist yet")
+            data_file = open(pickle_file, "wb")
+            
         finally:
             data_file.seek(0)
             pickle.dump(data, data_file)
