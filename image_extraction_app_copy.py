@@ -46,7 +46,7 @@ class App:
     #RED = (255, 0, 0)
     Corners = ["Upper Left Corner", "Upper Right Corner", "Lower Left Corner", \
     "Lower Right Corner", "END - press ESC twice to exit"]
-    num_images_to_load = 3
+    NUM_IMAGES_TO_LOAD =  parameters.NUM_IMAGES_TO_LOAD
     num_corners = 4
     IMG_DIR = parameters.IMG_DIR # Enter Directory of all images
     COLOURS = parameters.COLOURS
@@ -68,10 +68,10 @@ class App:
         pygame.display.set_caption('Image Sector Extraction')
         
 
-        ### Load num_images_to_load images to find the gas meter corners in them for training the NN
-        #self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+        ### Load NUM_IMAGES_TO_LOAD images to find the gas meter corners in them for training the NN
+        #self.image_array, self.image_names = image_extraction.load_images(self.NUM_IMAGES_TO_LOAD)
         
-        self.number_images = self.num_images_to_load
+        self.number_images = self.NUM_IMAGES_TO_LOAD
 
         
         try:
@@ -79,10 +79,10 @@ class App:
             self.image_list = pickle.load(image_name_file)
             num_images_loaded = len(self.image_list)
             print("num_images_loaded: " , num_images_loaded)
-            self.image_array, self.image_names = image_extraction_copy.load_images(num_images_loaded, self.num_images_to_load)
+            self.image_array, self.image_names = image_extraction_copy.load_images(num_images_loaded, self.NUM_IMAGES_TO_LOAD)
         except IOError:
             image = self.image_array[0]
-            self.image_array, self.image_names = image_extraction_copy.load_images(0, self.num_images_to_load)
+            self.image_array, self.image_names = image_extraction_copy.load_images(0, self.NUM_IMAGES_TO_LOAD)
             print("File imagenamelist.pck not accessible")
         finally:
             image_name_file.close()
@@ -91,8 +91,8 @@ class App:
         ### Creating the array for storing corner coordinates
         self.corner_array = np.zeros((self.number_images, self.num_corners, 2))
         '''
-        ### Load num_images_to_load images to find the gas meter corners in them for training the NN
-        self.image_array, self.image_names = image_extraction.load_images(self.num_images_to_load)
+        ### Load NUM_IMAGES_TO_LOAD images to find the gas meter corners in them for training the NN
+        self.image_array, self.image_names = image_extraction.load_images(self.NUM_IMAGES_TO_LOAD)
         
         self.number_images = len(self.image_array)
 
@@ -171,7 +171,7 @@ class App:
                     pygame.quit()
                     break
                 if i.type == pygame.MOUSEBUTTONDOWN and i.button == 1 and \
-                image_counter in range(0, self.num_images_to_load+1) and \
+                image_counter in range(0, self.NUM_IMAGES_TO_LOAD+1) and \
                 corner_counter in range(0, self.num_corners):
                     mouse_x, mouse_y = i.pos
                     #print(mouse_x, mouse_y)
@@ -179,7 +179,7 @@ class App:
                     #self.corner_list.append(i.pos)
                     self.image_list.append(self.image_names[image_counter])
                     image_counter += 1
-                    if image_counter == self.num_images_to_load:
+                    if image_counter == self.NUM_IMAGES_TO_LOAD:
                         image_counter = 0
                         corner_counter += 1
                         if corner_counter%2:
@@ -241,7 +241,7 @@ class App:
                             self.image_list = pickle.load(open("imagenamelist.pck", "rb"))
                             self.number_images = self.corner_array.shape[0]
                             #self.number_images = len(self.image_list)
-                            self.image_array, self.image_names = image_extraction_copy.load_images(0,self.num_images_to_load)
+                            self.image_array, self.image_names = image_extraction_copy.load_images(0,self.NUM_IMAGES_TO_LOAD)
                            
                             
                             self.image_counter = 0

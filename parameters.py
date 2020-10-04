@@ -8,7 +8,7 @@ NUM_CLASSES = 10
 EPOCHS = 20
 
 IMG_DIR = "./OpenCamera/" # Enter Directory of all images
-NUM_IMAGES_TO_LOAD = 10
+NUM_IMAGES_TO_LOAD = 3
 
 COLOURS = {"WHITE": (255, 255, 255),
            "GREEN": (0, 255, 0),

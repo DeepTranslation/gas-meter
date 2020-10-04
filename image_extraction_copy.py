@@ -1,22 +1,23 @@
 # General libraries
-import pickle
+#import pickle
 import numpy as np
-import scipy.io as sio
-import timeit
-import copy 
-import matplotlib.pyplot as plt
-import PIL
-from PIL import Image
-import cv2
+#import scipy.io as sio
+#import timeit
+#import copy 
+#import matplotlib.pyplot as plt
+#import PIL
+#from PIL import Image
 import os
-import argparse
-import imutils
-from scipy.spatial import distance
+import cv2
+
+#import argparse
+#import imutils
+#from scipy.spatial import distance
 import glob
 
 #Project specific libraries
 import parameters
-import contour_manipulation
+#import contour_manipulation
 import image_preparation
 
 # Keras libraries
