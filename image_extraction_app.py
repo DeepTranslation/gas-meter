@@ -3,6 +3,8 @@ import time
 import pickle
 import numpy as np
 import pygame
+
+#Project specific libraries
 import parameters
 import image_extraction
 
