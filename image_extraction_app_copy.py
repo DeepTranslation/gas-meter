@@ -15,7 +15,7 @@ import numpy as np
 
 import pygame
 import parameters
-import image_extraction
+#import image_extraction
 import image_extraction_copy
 
 
@@ -82,7 +82,7 @@ class App:
             self.image_array, self.image_names = image_extraction_copy.load_images(num_images_loaded, self.num_images_to_load)
         except IOError:
             image = self.image_array[0]
-            self.image_array, self.image_names = image_extraction.load_images(0, self.num_images_to_load)
+            self.image_array, self.image_names = image_extraction_copy.load_images(0, self.num_images_to_load)
             print("File imagenamelist.pck not accessible")
         finally:
             image_name_file.close()
@@ -241,7 +241,7 @@ class App:
                             self.image_list = pickle.load(open("imagenamelist.pck", "rb"))
                             self.number_images = self.corner_array.shape[0]
                             #self.number_images = len(self.image_list)
-                            self.image_array, self.image_names = image_extraction.load_images(0,self.num_images_to_load)
+                            self.image_array, self.image_names = image_extraction_copy.load_images(0,self.num_images_to_load)
                            
                             
                             self.image_counter = 0

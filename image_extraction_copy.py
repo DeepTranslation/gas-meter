@@ -43,14 +43,8 @@ def load_images(num_skip, num_images_to_load):
     data_path = os.path.join(IMG_DIR,'*g')
     files = glob.glob(data_path)
     images =[]
-
-
-
-
-
-    
-    image_names=[] image_counter = 0
-    
+    image_names=[] 
+    image_counter = 0
     print("images to be skipped: ", num_skip, "images to load: ", num_images_to_load)
     for file in files:
     #for image_name in range(len(image_names)):
