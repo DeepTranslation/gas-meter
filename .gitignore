@@ -14,3 +14,4 @@ Gas Meter/*
 2020-02/*
 *.pyc
 __pycache__
+*.pck
