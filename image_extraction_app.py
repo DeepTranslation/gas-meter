@@ -195,28 +195,29 @@ class App:
                             cornered_image[self.corner_array[self.image_counter, :, 1].astype(int), self.corner_array[self.image_counter, :, 0].astype(int)]=self.COLOURS["GREEN"]
                             self.show_image(cornered_image)
                             pygame.display.flip()
-                            self.image_counter = 1
+                            #self.image_counter = 1
 
                     if i.key == pygame.K_DOWN or i.key == pygame.K_UP:
     # flip through images with coordinates marked
                         if showing_images:
                             if self.image_counter >=0 and self.image_counter <= self.NUM_IMAGES_TO_LOAD:
 
-                                if i.key == pygame.K_DOWN and self.image_counter == self.NUM_IMAGES_TO_LOAD:
-                                    self.image_counter = 0
+                                if i.key == pygame.K_DOWN:
+                                    self.image_counter += 1
+                                    if self.image_counter == self.NUM_IMAGES_TO_LOAD:
+                                        self.image_counter = 0
                                
                                 if i.key == pygame.K_UP:
-                                    self.image_counter -= 1                                
+                                    if self.image_counter == 0:
+                                        self.image_counter = self.NUM_IMAGES_TO_LOAD
+                                    self.image_counter -= 1       
+
                                 image = self.image_array[self.image_counter]
                                 cornered_image = image.astype(int)
                                 cornered_image[self.corner_array[self.image_counter, : , 1].astype(int), self.corner_array[self.image_counter, : , 0].astype(int)]=self.COLOURS["GREEN"]
                                 self.show_image(cornered_image)
                                 pygame.display.flip()
-                                if i.key == pygame.K_DOWN:
-                                    self.image_counter += 1
-                               
-                                if i.key == pygame.K_UP and self.image_counter == 0:
-                                    self.image_counter = self.NUM_IMAGES_TO_LOAD
+
 
 
 
