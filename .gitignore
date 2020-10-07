@@ -15,3 +15,6 @@ Gas Meter/*
 *.pyc
 __pycache__
 *.pck
+__pycache__/image_extraction.cpython-36.pyc
+cornerlist.pck
+imagenamelist.pck
